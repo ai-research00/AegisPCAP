@@ -74,27 +74,27 @@ The implementation is organized into 8 major epics, each with specific sub-tasks
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7_
 
 - [ ] 3. Research API Extension
-  - [ ] 3.1 Extend Phase 14 Research API with community features
+  - [x] 3.1 Extend Phase 14 Research API with community features
     - Create `src/community/research/api.py` extending ResearchAPIController
     - Implement query_anonymized_data() with access control
     - Implement request_data_access() for restricted datasets
     - Implement get_dataset_info() for dataset discovery
     - _Requirements: 4.1, 4.4_
   
-  - [ ] 3.2 Implement DataAnonymizer for PII removal
+  - [x] 3.2 Implement DataAnonymizer for PII removal
     - Create `src/community/research/anonymizer.py` with DataAnonymizer class
     - Implement anonymize_flows() to remove IP addresses, hostnames
     - Implement anonymize_alerts() to remove sensitive information
     - Use Phase 13 anonymization methods as foundation
     - _Requirements: 4.2_
   
-  - [ ] 3.3 Add rate limiting and quota management
+  - [x] 3.3 Add rate limiting and quota management
     - Implement rate limiter with tier-based limits
     - Add quota tracking per user/tier
     - Return 429 status when limits exceeded
     - _Requirements: 4.3_
   
-  - [ ] 3.4 Implement audit logging for data access
+  - [x] 3.4 Implement audit logging for data access
     - Create audit log entries for all API requests
     - Log timestamp, user, query, and results count
     - Store in database for compliance
