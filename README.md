@@ -526,8 +526,8 @@ copies or substantial portions of the Software.
 ### Professional Support
 
 For enterprise support, training, and consulting:
-- **Email**: enterprise@aegispcap.org
-- **Website**: https://aegispcap.org
+- **Email**: research.unit734@proton.me
+- **Website**: https://northerntribesecurity.blogspot.com
 
 ### Stay Connected
 
