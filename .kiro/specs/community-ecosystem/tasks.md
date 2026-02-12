@@ -135,8 +135,8 @@ The implementation is organized into 8 major epics, each with specific sub-tasks
     - **Property 9: Changelog Automation** - Test changelog updates on merge
     - _Requirements: 2.2, 2.5_
 
-- [ ] 5. Threat Intelligence Feed
-  - [ ] 5.1 Implement ThreatIntelligenceFeed core functionality
+- [x] 5. Threat Intelligence Feed
+  - [x] 5.1 Implement ThreatIntelligenceFeed core functionality
     - Create `src/community/threat_intel/feed.py` with ThreatIntelligenceFeed class
     - Implement publish_indicator() for publishing indicators
     - Implement consume_indicators() with filtering
@@ -144,20 +144,20 @@ The implementation is organized into 8 major epics, each with specific sub-tasks
     - Implement report_false_positive() for feedback
     - _Requirements: 6.1, 6.2, 6.7_
   
-  - [ ] 5.2 Implement STIXConverter for standard format support
+  - [x] 5.2 Implement STIXConverter for standard format support
     - Create `src/community/threat_intel/stix_converter.py` with STIXConverter
     - Implement to_stix() for converting to STIX format
     - Implement from_stix() for parsing STIX objects
     - Support STIX 2.1 specification
     - _Requirements: 6.3_
   
-  - [ ] 5.3 Add confidence scoring and expiration logic
+  - [x] 5.3 Add confidence scoring and expiration logic
     - Implement confidence score calculation based on source, age, feedback
     - Implement indicator expiration based on age and relevance
     - Add metadata fields for confidence and expiration
     - _Requirements: 6.4, 6.6_
   
-  - [ ] 5.4 Integrate threat intelligence into detection pipeline
+  - [x] 5.4 Integrate threat intelligence into detection pipeline
     - Extend Phase 3 ML detection to use threat indicators
     - Add indicator matching in flow analysis
     - Update threat scores based on indicator matches
