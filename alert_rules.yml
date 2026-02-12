@@ -1,0 +1,171 @@
+groups:
+  - name: application_alerts
+    interval: 15s
+    rules:
+      # API Performance Alerts
+      - alert: HighAPILatency
+        expr: histogram_quantile(0.95, rate(api_request_duration_seconds_bucket[5m])) > 1.0
+        for: 2m
+        labels:
+          severity: warning
+          service: backend
+        annotations:
+          summary: "High API latency detected"
+          description: "95th percentile API latency is {{ $value }}s on instance {{ $labels.instance }}"
+
+      - alert: CriticalAPILatency
+        expr: histogram_quantile(0.99, rate(api_request_duration_seconds_bucket[5m])) > 5.0
+        for: 1m
+        labels:
+          severity: critical
+          service: backend
+        annotations:
+          summary: "Critical API latency detected"
+          description: "99th percentile API latency is {{ $value }}s on instance {{ $labels.instance }}"
+
+      # Error Rate Alerts
+      - alert: HighErrorRate
+        expr: rate(api_requests_total{status=~"5.."}[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          service: backend
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is {{ $value }} on instance {{ $labels.instance }}"
+
+      - alert: CriticalErrorRate
+        expr: rate(api_requests_total{status=~"5.."}[5m]) > 0.10
+        for: 2m
+        labels:
+          severity: critical
+          service: backend
+        annotations:
+          summary: "Critical error rate detected"
+          description: "Error rate is {{ $value }} on instance {{ $labels.instance }}"
+
+      # Flow Processing Alerts
+      - alert: LowFlowProcessingRate
+        expr: rate(flows_processed_total[5m]) < 100
+        for: 10m
+        labels:
+          severity: warning
+          service: pipeline
+        annotations:
+          summary: "Low flow processing rate"
+          description: "Flow processing rate is {{ $value }} flows/sec (target: >100)"
+
+      - alert: StallFlowProcessing
+        expr: rate(flows_processed_total[5m]) < 10
+        for: 5m
+        labels:
+          severity: critical
+          service: pipeline
+        annotations:
+          summary: "Flow processing has stalled"
+          description: "Flow processing rate is {{ $value }} flows/sec (target: >100)"
+
+      # Model Inference Alerts
+      - alert: HighModelLatency
+        expr: histogram_quantile(0.95, rate(model_inference_seconds_bucket[5m])) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+          service: ml
+        annotations:
+          summary: "High model inference latency"
+          description: "Model {{ $labels.model }} inference latency is {{ $value }}s"
+
+      - alert: ModelInferenceFailing
+        expr: rate(model_inference_errors_total[5m]) > 0
+        for: 3m
+        labels:
+          severity: critical
+          service: ml
+        annotations:
+          summary: "Model inference failing"
+          description: "Model {{ $labels.model }} has errors at {{ $value }} errors/sec"
+
+      # Database Alerts
+      - alert: HighDatabaseLatency
+        expr: histogram_quantile(0.95, rate(db_query_seconds_bucket[5m])) > 1.0
+        for: 5m
+        labels:
+          severity: warning
+          service: database
+        annotations:
+          summary: "High database query latency"
+          description: "Database latency is {{ $value }}s for {{ $labels.query_type }}"
+
+      - alert: DatabaseConnectionPoolExhausted
+        expr: db_connection_pool_available < 5
+        for: 2m
+        labels:
+          severity: critical
+          service: database
+        annotations:
+          summary: "Database connection pool nearly exhausted"
+          description: "Only {{ $value }} connections available"
+
+      # Cache Alerts
+      - alert: LowCacheHitRate
+        expr: (cache_hits_total / (cache_hits_total + cache_misses_total)) < 0.70
+        for: 10m
+        labels:
+          severity: warning
+          service: cache
+        annotations:
+          summary: "Cache hit rate below target"
+          description: "Cache hit rate is {{ $value | humanizePercentage }} (target: >85%)"
+
+      # Resource Alerts
+      - alert: HighCPUUsage
+        expr: rate(node_cpu_seconds_total{mode!="idle"}[5m]) > 0.80
+        for: 5m
+        labels:
+          severity: warning
+          service: system
+        annotations:
+          summary: "High CPU usage"
+          description: "CPU usage is {{ $value | humanizePercentage }}"
+
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) > 0.85
+        for: 5m
+        labels:
+          severity: warning
+          service: system
+        annotations:
+          summary: "High memory usage"
+          description: "Memory usage is {{ $value | humanizePercentage }}"
+
+      - alert: DiskSpaceLow
+        expr: (node_filesystem_avail_bytes{fstype=~"ext4|xfs"} / node_filesystem_size_bytes) < 0.10
+        for: 5m
+        labels:
+          severity: critical
+          service: system
+        annotations:
+          summary: "Low disk space"
+          description: "Disk {{ $labels.device }} has only {{ $value | humanizePercentage }} free"
+
+      # Service Availability Alerts
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: infrastructure
+        annotations:
+          summary: "Service is down"
+          description: "Service {{ $labels.job }} on instance {{ $labels.instance }} is down"
+
+      - alert: ContainerRestartingFrequently
+        expr: rate(container_last_seen[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          service: infrastructure
+        annotations:
+          summary: "Container restarting frequently"
+          description: "Container {{ $labels.name }} restarted {{ $value }} times in 5m"

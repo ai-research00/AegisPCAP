@@ -1,0 +1,273 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    - cron: '0 2 * * *'  # Daily at 2 AM UTC
+
+jobs:
+  # Python Backend Tests
+  test-backend:
+    runs-on: ubuntu-latest
+    name: Backend Tests & Coverage
+    
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: aegispcap_test
+          POSTGRES_USER: aegis
+          POSTGRES_PASSWORD: test_password
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python 3.13
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.13'
+        cache: 'pip'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Run tests with coverage
+      env:
+        DATABASE_URL: postgresql://aegis:test_password@localhost:5432/aegispcap_test
+        REDIS_URL: redis://localhost:6379/0
+        PYTHONPATH: ${{ github.workspace }}
+      run: |
+        pytest tests/ --cov=src --cov-report=xml --cov-report=term-missing -v
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+
+  # Frontend Tests
+  test-frontend:
+    runs-on: ubuntu-latest
+    name: Frontend Tests & Build
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+    
+    - name: Install dependencies
+      run: |
+        cd frontend
+        npm ci
+    
+    - name: Run ESLint
+      run: |
+        cd frontend
+        npm run lint
+      continue-on-error: true
+    
+    - name: Build production bundle
+      run: |
+        cd frontend
+        npm run build
+    
+    - name: Check bundle size
+      run: |
+        cd frontend
+        du -sh dist/
+
+  # Code Quality
+  code-quality:
+    runs-on: ubuntu-latest
+    name: Code Quality Checks
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.13'
+        cache: 'pip'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pylint black isort flake8 mypy
+        pip install -r requirements.txt
+    
+    - name: Check Python formatting (black)
+      run: black --check src/ tests/
+      continue-on-error: true
+    
+    - name: Check import sorting (isort)
+      run: isort --check-only src/ tests/
+      continue-on-error: true
+    
+    - name: Run type checking (mypy)
+      run: mypy src/ --ignore-missing-imports
+      continue-on-error: true
+    
+    - name: Run linters
+      run: |
+        pylint src/ --disable=all --enable=E,F
+        flake8 src/ --max-line-length=120
+      continue-on-error: true
+
+  # Build Docker Images
+  build-docker:
+    needs: [test-backend, test-frontend, code-quality]
+    runs-on: ubuntu-latest
+    name: Build Docker Images
+    if: github.event_name == 'push'
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    
+    - name: Build backend image
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        file: ./Dockerfile
+        push: false
+        tags: aegispcap:latest
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+    
+    - name: Build frontend image
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        file: ./Dockerfile.frontend
+        push: false
+        tags: aegispcap-frontend:latest
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+  # Security Scanning
+  security:
+    runs-on: ubuntu-latest
+    name: Security Scanning
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+    
+    - name: Upload Trivy results to GitHub Security
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+  # Integration Tests (optional - slow)
+  integration-tests:
+    runs-on: ubuntu-latest
+    name: Integration Tests
+    if: contains(github.event.head_commit.message, '[integration]')
+    
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: aegispcap_test
+          POSTGRES_USER: aegis
+          POSTGRES_PASSWORD: test_password
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.13'
+        cache: 'pip'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Run integration tests
+      env:
+        DATABASE_URL: postgresql://aegis:test_password@localhost:5432/aegispcap_test
+        REDIS_URL: redis://localhost:6379/0
+      run: |
+        pytest tests/integration -v -m integration
+
+  # Deployment (optional - main branch only)
+  deploy:
+    needs: [test-backend, test-frontend, build-docker]
+    runs-on: ubuntu-latest
+    name: Deploy to Staging
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Deploy to staging cluster
+      run: |
+        echo "Deploying to staging cluster..."
+        # kubectl apply -f k8s/ --kubeconfig=${{ secrets.KUBE_CONFIG }}
+        # kubectl set image deployment/aegispcap-api api=aegispcap:${{ github.sha }} -n aegispcap
+      continue-on-error: true
+    
+    - name: Run smoke tests
+      run: |
+        echo "Running smoke tests against staging..."
+        # curl -f https://staging.aegispcap.example.com/health || exit 1
+      continue-on-error: true

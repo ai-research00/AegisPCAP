@@ -1,0 +1,49 @@
+---
+# Namespace for AegisPCAP
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: aegispcap
+  labels:
+    name: aegispcap
+
+---
+# ConfigMap for non-sensitive configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aegispcap-config
+  namespace: aegispcap
+data:
+  ENVIRONMENT: "production"
+  DEBUG: "false"
+  API_HOST: "0.0.0.0"
+  API_PORT: "8000"
+  DATABASE_HOST: "postgres-service"
+  DATABASE_PORT: "5432"
+  DATABASE_NAME: "aegispcap"
+  REDIS_HOST: "redis-service"
+  REDIS_PORT: "6379"
+  VT_ENABLED: "true"
+  VT_CACHE_HOURS: "24"
+  AV_ENABLED: "true"
+  AV_CACHE_HOURS: "24"
+  FIREWALL_TYPE: "pfsense"
+  FIREWALL_VERIFY_SSL: "true"
+
+---
+# Secret for sensitive data
+apiVersion: v1
+kind: Secret
+metadata:
+  name: aegispcap-secrets
+  namespace: aegispcap
+type: Opaque
+stringData:
+  DATABASE_URL: "postgresql://aegis:aegis_password@postgres-service:5432/aegispcap"
+  REDIS_URL: "redis://:redis_password@redis-service:6379/0"
+  VT_API_KEY: "your_virustotal_key"
+  AV_API_KEY: "your_alienvault_key"
+  JIRA_API_TOKEN: "your_jira_token"
+  SNOW_PASSWORD: "your_servicenow_password"
+  FIREWALL_API_KEY: "your_firewall_key"

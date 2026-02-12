@@ -1,0 +1,44 @@
+server:
+  http_listen_address: 0.0.0.0
+  http_listen_port: 3100
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  # System logs
+  - job_name: system
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: system
+          __path__: /var/log/**/*.log
+
+  # Docker daemon logs
+  - job_name: docker
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+        refresh_interval: 30s
+    relabel_configs:
+      - source_labels: ['__meta_docker_container_name']
+        target_label: container_name
+      - source_labels: ['__meta_docker_container_label_com_docker_compose_service']
+        target_label: service_name
+
+  # Application logs (if using structured logging)
+  - job_name: application
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: application
+          __path__: /var/log/app/**/*.log
+
+  # Syslog
+  - job_name: syslog
+    syslog_sd_configs:
+      - listen_address: 0.0.0.0:1514

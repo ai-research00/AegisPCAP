@@ -1,0 +1,127 @@
+# Docker Ignore
+# Files and directories to exclude from Docker build context
+
+# Version Control
+.git
+.gitignore
+.gitattributes
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.pytest_cache
+.coverage
+htmlcov/
+*.egg-info/
+dist/
+build/
+*.egg
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Virtual Environments
+venv/
+env/
+ENV/
+.venv
+
+# IDE & Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+.vim
+
+# Node (Frontend Build)
+node_modules/
+npm-debug.log
+yarn-error.log
+.npm
+
+# Documentation & Logs
+docs/
+logs/
+*.log
+*.md
+!README.md
+
+# Environment Files
+.env
+.env.local
+.env.*.local
+
+# Test Coverage
+coverage
+htmlcov
+.coverage.*
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+postgres_data/
+redis_data/
+
+# Cache & Temporary
+.cache/
+tmp/
+temp/
+*.tmp
+.pytest_cache/
+
+# Build Output
+build/
+dist/
+*.egg-info/
+
+# Docker
+.docker
+docker-compose.override.yml
+docker.env
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.circleci/
+azure-pipelines.yml
+
+# Development
+DEVELOPMENT.md
+TODO*.md
+PHASE*.md
+SESSION*.md
+*.analysis.md
+
+# Large Files
+htmlcov/
+*.tar.gz
+*.zip
+
+# Data Files
+data/raw_pcaps/
+data/processed/
+models/
+
+# Keep necessary files
+!requirements.txt
+!sql/init.sql
+!nginx.conf
+!.dockerignore

@@ -1,0 +1,31 @@
+{
+  "project_name": "AegisPCAP",
+  "version": "0.2",
+  "type": "ai-agent-network-intelligence",
+  "language": "python",
+  "execution_mode": "offline",
+  "pipeline": {
+    "pcap_ingest": true,
+    "flow_aggregation": true,
+    "feature_engineering": true,
+    "ml_detection": true,
+    "agent_reasoning": true
+  },
+  "agent": {
+    "enabled": true,
+    "planner": true,
+    "tool_selection": true,
+    "evidence_correlation": true
+  },
+  "models": {
+    "baseline": "isolation_forest",
+    "future": ["lstm", "autoencoder"]
+  },
+  "heuristics": [
+    "dns_entropy",
+    "dns_beaconing",
+    "tls_fingerprint",
+    "tls_session_reuse"
+  ],
+  "outputs": ["json", "markdown"]
+}
