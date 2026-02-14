@@ -470,19 +470,6 @@ git push origin feature/your-feature-name
 
 ## Roadmap
 
-### Current: Phase 15 - Community Ecosystem (100% COMPLETE) ✅
-
-- COMPLETE: Plugin system for extensibility
-- COMPLETE: Model registry for sharing trained models
-- COMPLETE: Contribution framework with CI/CD
-- COMPLETE: Threat intelligence feed with STIX/TAXII
-- COMPLETE: Research API for academic access
-- COMPLETE: Extension marketplace
-- COMPLETE: Documentation portal
-- COMPLETE: Community forum
-- COMPLETE: Analytics and telemetry
-- COMPLETE: Open source preparation
-
 ### Upcoming Phases
 
 - **Phase 16**: Advanced Threat Detection (Q2 2026)
