@@ -415,7 +415,7 @@ open http://localhost:3000/flows
 - **GDPR**: Data minimization, right to erasure, consent management
 - **HIPAA**: PHI protection, access controls, audit trails
 - **CCPA**: Consumer data rights, opt-out mechanisms
-- **SOC 2**: Security controls and monitoring
+- **SOC 2**: Security controls and monitorings
 
 ### Vulnerability Reporting
 
@@ -469,19 +469,6 @@ git push origin feature/your-feature-name
 ---
 
 ## Roadmap
-
-### Current: Phase 15 - Community Ecosystem (100% COMPLETE) ✅
-
-- COMPLETE: Plugin system for extensibility
-- COMPLETE: Model registry for sharing trained models
-- COMPLETE: Contribution framework with CI/CD
-- COMPLETE: Threat intelligence feed with STIX/TAXII
-- COMPLETE: Research API for academic access
-- COMPLETE: Extension marketplace
-- COMPLETE: Documentation portal
-- COMPLETE: Community forum
-- COMPLETE: Analytics and telemetry
-- COMPLETE: Open source preparation
 
 ### Upcoming Phases
 
